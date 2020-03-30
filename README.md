@@ -95,7 +95,64 @@ $ ./QueueTest
 Success
 ```
 
-If it prints anything *other* than ``Success``, that means it has bugs. We expect you to be able to debug your code however you feel is best (e.g. print statements, ``gdb``, etc.). Remember that you will be dynamically creating ``Node`` objects, so beware of memory leaks!
+If it prints anything *other* than ``Success``, that means it has bugs. We expect you to be able to debug your code however you feel is best (e.g. print statements, ``gdb``, etc.).
+
+### Checking for Memory Leaks
+Remember that you will be dynamically creating ``Node`` objects, so beware of memory leaks! You can use ``valgrind`` to check for memory leaks. For example, you can run it as follows:
+
+```bash
+valgrind --tool=memcheck --leak-check=yes ./QueueTest
+```
+
+If it gives you a report like the following, you do not have memory leaks and are good to go (the important part is ``All heap blocks were freed -- no leaks are possible``):
+
+```
+==160== Memcheck, a memory error detector
+==160== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==160== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==160== Command: ./QueueTest
+==160==
+==160== error calling PR_SET_PTRACER, vgdb might block
+==160==
+==160== HEAP SUMMARY:
+==160==     in use at exit: 0 bytes in 0 blocks
+==160==   total heap usage: 661 allocs, 661 frees, 96,282 bytes allocated
+==160==
+==160== All heap blocks were freed -- no leaks are possible
+==160==
+==160== For counts of detected and suppressed errors, rerun with: -v
+==160== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+```
+
+If you *do* have memory leaks, the report will look something like the following:
+
+```
+==186== Memcheck, a memory error detector
+==186== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==186== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==186== Command: ./QueueTest
+==186==
+==186== error calling PR_SET_PTRACER, vgdb might block
+==186==
+==186== HEAP SUMMARY:
+==186==     in use at exit: 3,226 bytes in 95 blocks
+==186==   total heap usage: 500 allocs, 405 frees, 91,530 bytes allocated
+==186==
+==186== 3,226 (40 direct, 3,186 indirect) bytes in 1 blocks are definitely lost in loss record 3 of 3
+==186==    at 0x4C3017F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==186==    by 0x10AB2E: Queue::push(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >) (in /mnt/c/Users/niema/Desktop/PA1-Solution/QueueTest)
+==186==    by 0x109B1D: main (in /mnt/c/Users/niema/Desktop/PA1-Solution/QueueTest)
+==186==
+==186== LEAK SUMMARY:
+==186==    definitely lost: 40 bytes in 1 blocks
+==186==    indirectly lost: 3,186 bytes in 94 blocks
+==186==      possibly lost: 0 bytes in 0 blocks
+==186==    still reachable: 0 bytes in 0 blocks
+==186==         suppressed: 0 bytes in 0 blocks
+==186==
+==186== For counts of detected and suppressed errors, rerun with: -v
+==186== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 0 from 0)
+```
 
 ## General Tips
 We have provided a [``Makefile``](Makefile) to make compilation more convenient. Instead of having to type the ``g++ ...`` command each time you want to recompile your code, you can simply type ``make``. Here's an example of how it should look:
